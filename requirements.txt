@@ -1,7 +1,6 @@
 fastapi
 uvicorn
 twilio
-openai
+google-generativeai
 python-dotenv
 requests
-
