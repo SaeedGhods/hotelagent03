@@ -40,6 +40,8 @@
         {"item": "Club Sandwich", "price": 24, "details": "Turkey, bacon, avocado, sourdough"},
         {"item": "Caesar Salad", "price": 20, "details": "Romaine, parmesan, croutons (Add Chicken +$8)"},
         {"item": "Filet Mignon", "price": 45, "details": "8oz, red wine reduction, mashed potatoes"},
+        {"item": "Margherita Pizza", "price": 22, "details": "Fresh mozzarella, basil, tomato sauce"},
+        {"item": "Pepperoni Pizza", "price": 24, "details": "Spicy pepperoni, mozzarella"},
         {"item": "Chocolate Fondant", "price": 16, "details": "Vanilla bean ice cream"},
         {"item": "Champagne", "price": 120, "details": "Bottle of Veuve Clicquot"}
     ],

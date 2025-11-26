@@ -170,7 +170,8 @@ async def get_ai_response(call_sid: str, user_input: str, caller_number: str) ->
         
     except Exception as e:
         logger.error(f"Error calling Gemini: {e}")
-        return {"text": "I apologize, the system is updating. One moment.", "voice": "en-US-Neural2-F"}
+        # Better fallback
+        return {"text": "I'm sorry, I didn't quite catch that. Could you say it again?", "voice": "en-US-Neural2-F", "transfer": False}
 
 def clear_history(call_sid: str):
     if call_sid in conversation_history:
