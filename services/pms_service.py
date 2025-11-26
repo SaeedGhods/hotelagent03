@@ -60,14 +60,20 @@ def init_db():
     if cursor.fetchone()[0] == 0:
         logger.info("Seeding mock data...")
         
-        # Create a VIP Guest (simulating YOU)
-        # Updated with real phone number
         cursor.execute("INSERT INTO guests (phone, name, vip_status) VALUES (?, ?, ?)", 
                        ("+14169006975", "Saeed Ghods", "Platinum"))
-        guest_id = cursor.lastrowid
+        guest_id_1 = cursor.lastrowid
         
         cursor.execute("INSERT INTO bookings (guest_id, room_number, check_in, check_out, balance) VALUES (?, ?, ?, ?, ?)",
-                       (guest_id, "402", datetime.date.today(), datetime.date.today() + datetime.timedelta(days=3), 450.00))
+                       (guest_id_1, "402", datetime.date.today(), datetime.date.today() + datetime.timedelta(days=3), 450.00))
+
+        # Add Nasrin Dalir
+        cursor.execute("INSERT INTO guests (phone, name, vip_status) VALUES (?, ?, ?)", 
+                       ("+16473303549", "Nasrin Dalir", "Gold"))
+        guest_id_2 = cursor.lastrowid
+        
+        cursor.execute("INSERT INTO bookings (guest_id, room_number, check_in, check_out, balance) VALUES (?, ?, ?, ?, ?)",
+                       (guest_id_2, "69", datetime.date.today(), datetime.date.today() + datetime.timedelta(days=2), 280.00))
                        
     conn.commit()
     conn.close()
