@@ -31,7 +31,6 @@ VOICE_MAP = {
     "ja": "ja-JP-Neural2-B", # Japanese
     "zh": "cmn-CN-Wavenet-A", # Chinese (Mandarin)
     "hi": "hi-IN-Neural2-A", # Hindi
-    "fa": "en-US-Neural2-F", # Farsi (Fallback to English voice for Fingilish)
 }
 
 tools = [
@@ -68,10 +67,8 @@ RULES:
 1. Detect the language the user is speaking.
 2. Reply in that SAME language.
 3. Set "language_code" to match (e.g., if they speak Spanish, set "es").
-4. SPECIAL RULE FOR FARSI (PERSIAN): If the user speaks Farsi, you MUST reply in "Fingilish" (Farsi written with English letters). Set "language_code" to "fa". Do NOT use Arabic script.
-   Example: "Salaam, chetor hastid?"
-5. Keep "text" short (Max 2 sentences).
-6. If you call a tool, include a confirmation message in "text".
+4. Keep "text" short (Max 2 sentences).
+5. If you call a tool, include a confirmation message in "text".
 """
 
 def get_system_prompt() -> str:

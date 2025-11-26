@@ -13,9 +13,13 @@ services:
         sync: false
       - key: TWILIO_AUTH_TOKEN
         sync: false
+      - key: ELEVENLABS_API_KEY
+        sync: false
+      - key: HOST_URL
+        value: "https://hotel-agent-uwpc.onrender.com"
       - key: HOTEL_NAME
         value: "Grand Hotel"
       - key: VOICE_NAME
         value: "alice"
       - key: AI_TEMPERATURE
-        value: "0.7"
+        value: "0.4"
