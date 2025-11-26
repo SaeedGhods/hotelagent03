@@ -4,6 +4,7 @@ from typing import List, Dict, Optional
 import json
 import logging
 from services.pms_service import get_active_booking, create_ticket, get_bill_details, get_guest_details
+from services.history_service import log_call_start, log_transcript
 
 logger = logging.getLogger(__name__)
 
@@ -110,6 +111,9 @@ async def get_ai_response(call_sid: str, user_input: str, caller_number: str) ->
     try:
         if call_sid not in conversation_history:
              conversation_history[call_sid] = []
+             log_call_start(call_sid, caller_number)
+
+        log_transcript(call_sid, "user", user_input)
 
         model = genai.GenerativeModel(
             model_name="models/gemini-2.0-flash",
@@ -159,6 +163,8 @@ async def get_ai_response(call_sid: str, user_input: str, caller_number: str) ->
 
         voice = VOICE_MAP.get(lang, "en-US-Neural2-F")
         conversation_history[call_sid] = chat.history
+        
+        log_transcript(call_sid, "assistant", text)
 
         return {"text": text, "voice": voice, "transfer": transfer_flag}
         

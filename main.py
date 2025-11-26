@@ -10,6 +10,7 @@ from dotenv import load_dotenv
 from services.ai_service import get_ai_response, clear_history
 from services.tts_service import generate_audio
 from services.pms_service import init_db, get_db_connection
+from services.history_service import get_recent_calls
 
 load_dotenv()
 
@@ -55,6 +56,11 @@ async def get_guests_list(request: Request):
     guests = conn.execute("SELECT * FROM guests WHERE vip_status IN ('Platinum', 'Gold')").fetchall()
     conn.close()
     return templates.TemplateResponse("guests_partial.html", {"request": request, "guests": guests})
+
+@app.get("/api/transcripts")
+async def get_transcripts(request: Request):
+    calls = get_recent_calls(limit=3)
+    return templates.TemplateResponse("transcripts_partial.html", {"request": request, "calls": calls})
 
 # --- VOICE ROUTES ---
 

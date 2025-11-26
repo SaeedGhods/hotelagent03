@@ -47,11 +47,35 @@ def init_db():
         CREATE TABLE IF NOT EXISTS tickets (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             booking_id INTEGER,
-            type TEXT, -- 'Housekeeping', 'Engineering', 'Concierge'
+            type TEXT,
             description TEXT,
-            status TEXT DEFAULT 'Open', -- 'Open', 'In Progress', 'Closed'
+            status TEXT DEFAULT 'Open',
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY(booking_id) REFERENCES bookings(id)
+        )
+    ''')
+
+    # Calls Table (For History)
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS calls (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            call_sid TEXT UNIQUE,
+            guest_phone TEXT,
+            start_time DATETIME DEFAULT CURRENT_TIMESTAMP,
+            summary TEXT,
+            status TEXT DEFAULT 'in-progress'
+        )
+    ''')
+
+    # Transcripts Table (Line by Line)
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS transcripts (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            call_sid TEXT,
+            role TEXT, -- 'user' or 'assistant'
+            content TEXT,
+            timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY(call_sid) REFERENCES calls(call_sid)
         )
     ''')
     

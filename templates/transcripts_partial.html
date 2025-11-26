@@ -1,0 +1,24 @@
+{% for call in calls %}
+<div class="bg-slate-800/40 rounded-xl border border-slate-700/50 overflow-hidden">
+    <div class="bg-slate-800/60 px-4 py-2 flex justify-between items-center border-b border-slate-700/50">
+        <div class="flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full {% if call.status == 'active' %}bg-green-500 animate-pulse{% else %}bg-slate-500{% endif %}"></span>
+            <span class="text-xs font-mono text-slate-400">{{ call.guest_phone }}</span>
+        </div>
+        <span class="text-xs text-slate-500">{{ call.start_time }}</span>
+    </div>
+    <div class="p-4 space-y-3 max-h-[300px] overflow-y-auto font-sans text-sm">
+        {% for line in call.transcript %}
+        <div class="flex gap-3 {% if line.role == 'assistant' %}flex-row-reverse{% endif %}">
+            <div class="max-w-[80%] p-3 rounded-2xl 
+                {% if line.role == 'assistant' %}bg-brand/20 text-brand-100 rounded-tr-sm{% else %}bg-slate-700/50 text-slate-200 rounded-tl-sm{% endif %}">
+                <p>{{ line.content }}</p>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% else %}
+<div class="text-center py-8 text-slate-500">No recent conversations.</div>
+{% endfor %}
+
