@@ -52,7 +52,7 @@ def get_ai_response(call_sid: str, user_input: str) -> str:
 
         # Create model instance with dynamic configuration
         model = genai.GenerativeModel(
-            model_name="gemini-1.5-flash",
+            model_name="gemini-pro",
             generation_config=generation_config,
             system_instruction=get_system_prompt()
         )
