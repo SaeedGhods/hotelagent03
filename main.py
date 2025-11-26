@@ -18,7 +18,7 @@ os.makedirs("static", exist_ok=True)
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 HOTEL_NAME = os.getenv("HOTEL_NAME", "Grand Hotel")
-VERSION = "1.2.1-HOTFIX" 
+VERSION = "2.0.0-SMART-CORE" 
 HOST_URL = os.getenv("HOST_URL", "https://hotel-agent-uwpc.onrender.com") 
 
 @app.get("/")
@@ -31,20 +31,13 @@ async def voice(From: str = Form(...), CallSid: str = Form(...)):
     response = VoiceResponse()
     
     # Use Pre-Generated Audio for Instant, High-Quality Greeting
-    # Check if static/welcome.mp3 exists
     welcome_file = "static/welcome.mp3"
     
-    # We assume the file is generated. If not, we could trigger generation here, 
-    # but that adds latency. 
-    # Ideally, this file is generated at deployment time.
-    
     if os.path.exists(welcome_file):
-         # Use the public URL
          clean_host = HOST_URL.rstrip("/")
          audio_url = f"{clean_host}/{welcome_file}"
          response.play(audio_url)
     else:
-         # Fallback if file missing (shouldn't happen if we run prewarm)
          response.say(f"Welcome to {HOTEL_NAME}. How can I help?", voice="en-US-Neural2-F")
     
     response.gather(input="speech", action="/handle-speech", timeout=3, language="auto")
@@ -52,7 +45,10 @@ async def voice(From: str = Form(...), CallSid: str = Form(...)):
     return Response(content=str(response), media_type="application/xml")
 
 @app.post("/handle-speech")
-async def handle_speech(CallSid: str = Form(...), SpeechResult: str = Form(None)):
+async def handle_speech(CallSid: str = Form(...), From: str = Form(...), SpeechResult: str = Form(None)):
+    """
+    Note: Added 'From' parameter to track guest phone number
+    """
     response = VoiceResponse()
     
     if not SpeechResult:
@@ -60,24 +56,20 @@ async def handle_speech(CallSid: str = Form(...), SpeechResult: str = Form(None)
         response.gather(input="speech", action="/handle-speech", timeout=3, language="auto")
         return Response(content=str(response), media_type="application/xml")
 
-    # Get AI response
-    ai_result = get_ai_response(CallSid, SpeechResult)
+    # Get AI response (Pass Caller Number)
+    ai_result = get_ai_response(CallSid, SpeechResult, From)
     ai_text = ai_result["text"]
     
     # Generate Audio via ElevenLabs
     audio_file_path = generate_audio(ai_text)
     
     if audio_file_path:
-        # Convert local path to public URL
-        # Ensure no double slashes
         clean_host = HOST_URL.rstrip("/")
         audio_url = f"{clean_host}/{audio_file_path}"
         response.play(audio_url)
     else:
-        # Fallback to Twilio TTS if generation failed
         response.say(ai_text, voice=ai_result["voice"])
     
-    # Loop back
     response.gather(input="speech", action="/handle-speech", timeout=3, language="auto")
     
     return Response(content=str(response), media_type="application/xml")

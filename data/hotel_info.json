@@ -1,0 +1,49 @@
+{
+    "hotel_name": "Grand Hotel",
+    "check_in": "3:00 PM",
+    "check_out": "11:00 AM",
+    "wifi": {
+        "network": "GrandHotel_Guest",
+        "password": "luxury_stays"
+    },
+    "facilities": {
+        "pool": {
+            "location": "Rooftop (25th Floor)",
+            "hours": "6:00 AM - 10:00 PM",
+            "details": "Heated infinity pool. Adult only after 8 PM."
+        },
+        "gym": {
+            "location": "3rd Floor",
+            "hours": "24/7",
+            "details": "Technogym equipment, yoga studio available."
+        },
+        "spa": {
+            "name": "Serenity Spa",
+            "location": "2nd Floor",
+            "hours": "9:00 AM - 8:00 PM",
+            "services": ["Massage", "Facial", "Sauna", "Steam Room"]
+        },
+        "restaurant": {
+            "name": "The Grand Bistro",
+            "cuisine": "Modern French",
+            "hours": {
+                "breakfast": "6:30 AM - 10:30 AM",
+                "lunch": "12:00 PM - 2:30 PM",
+                "dinner": "6:00 PM - 10:30 PM"
+            },
+            "dress_code": "Smart Casual"
+        }
+    },
+    "room_service_menu": [
+        {"item": "Grand Burger", "price": 28, "details": "Wagyu beef, truffle mayo, brioche bun"},
+        {"item": "Club Sandwich", "price": 24, "details": "Turkey, bacon, avocado, sourdough"},
+        {"item": "Caesar Salad", "price": 20, "details": "Romaine, parmesan, croutons (Add Chicken +$8)"},
+        {"item": "Filet Mignon", "price": 45, "details": "8oz, red wine reduction, mashed potatoes"},
+        {"item": "Chocolate Fondant", "price": 16, "details": "Vanilla bean ice cream"}
+    ],
+    "policies": {
+        "pets": "Pet friendly (up to 25lbs) with $100 deposit.",
+        "smoking": "Strictly non-smoking property. $500 fine."
+    }
+}
+
