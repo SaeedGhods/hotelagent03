@@ -3,41 +3,26 @@ import google.generativeai as genai
 from typing import List, Dict, Optional
 import json
 import logging
-from twilio.rest import Client
-from services.guest_service import get_guest_profile, save_last_order
+from services.pms_service import get_active_booking, create_ticket, get_bill_details, get_guest_details
 
-# Configure Logging
-logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# In-memory storage
 conversation_history: Dict[str, List[Dict[str, str]]] = {}
 
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 
-# Robust Config Loading
 try:
     with open("data/hotel_info.json", "r") as f:
         HOTEL_INFO = json.load(f)
-except Exception as e:
-    logger.error(f"Failed to load hotel_info.json: {e}")
-    HOTEL_INFO = {"error": "Hotel info unavailable"}
+except:
+    HOTEL_INFO = {}
 
 HOTEL_NAME = os.getenv("HOTEL_NAME", "Grand Hotel")
 AI_TEMPERATURE = float(os.getenv("AI_TEMPERATURE", "0.4"))
 
-# Twilio Client (Optional)
-try:
-    twilio_client = Client(os.getenv("TWILIO_ACCOUNT_SID"), os.getenv("TWILIO_AUTH_TOKEN"))
-    TWILIO_PHONE_NUMBER = os.getenv("TWILIO_PHONE_NUMBER")
-except:
-    twilio_client = None
-    TWILIO_PHONE_NUMBER = None
-
 generation_config = {
     "temperature": AI_TEMPERATURE,
     "top_p": 0.95,
-    "top_k": 64,
     "max_output_tokens": 150,
     "response_mime_type": "application/json",
 }
@@ -46,107 +31,96 @@ VOICE_MAP = {
     "en": "en-US-Neural2-F",
     "es": "es-US-Neural2-A",
     "fr": "fr-FR-Neural2-A",
-    "de": "de-DE-Neural2-B",
-    "it": "it-IT-Neural2-A",
-    "pt": "pt-BR-Neural2-A",
-    "ja": "ja-JP-Neural2-B",
-    "zh": "cmn-CN-Wavenet-A",
-    "hi": "hi-IN-Neural2-A",
 }
 
+# DEFINING POWERFUL TOOLS
 tools = [
     {
         "function_declarations": [
             {
-                "name": "book_room_service",
-                "description": "Order food/items",
+                "name": "create_maintenance_ticket",
+                "description": "Log a maintenance or housekeeping issue (AC broken, towels needed, etc).",
                 "parameters": {
                     "type": "OBJECT",
                     "properties": {
-                        "item": {"type": "STRING", "description": "Item from menu"},
-                        "quantity": {"type": "INTEGER"},
+                        "issue_type": {"type": "STRING", "enum": ["Housekeeping", "Engineering", "Concierge"]},
+                        "description": {"type": "STRING"}
                     },
-                    "required": ["item"]
+                    "required": ["issue_type", "description"]
                 }
             },
             {
-                "name": "check_hotel_info",
-                "description": "Look up hotel hours, wifi, or menu items.",
+                "name": "check_bill",
+                "description": "Check the guest's current bill/folio balance.",
+                "parameters": {
+                    "type": "OBJECT",
+                    "properties": {}, # No params needed, inferred from context
+                }
+            },
+            {
+                "name": "book_room_service",
+                "description": "Order food items.",
                 "parameters": {
                     "type": "OBJECT",
                     "properties": {
-                        "query": {"type": "STRING", "description": "What to look up"}
+                        "item": {"type": "STRING"},
+                        "quantity": {"type": "INTEGER"}
                     },
-                    "required": ["query"]
+                    "required": ["item"]
                 }
             }
         ]
     }
 ]
 
-def get_system_prompt(guest_profile: Dict) -> str:
-    guest_name = guest_profile.get("name", "Guest")
-    last_order = guest_profile.get("last_order")
+def get_system_prompt(caller_number: str) -> str:
+    # Real-time PMS Lookup
+    booking = get_active_booking(caller_number)
     
-    context = f"Guest Phone: {guest_profile['phone']}\n"
-    if guest_name:
-        context += f"Guest Name: {guest_name}\n"
-    if last_order:
-        context += f"Last Order: {last_order}\n"
+    if booking:
+        guest_context = f"""
+        GUEST IDENTIFIED: {booking['name']}
+        ROOM: {booking['room_number']}
+        CHECK-OUT: {booking['check_out']}
+        VIP STATUS: Platinum (Mock)
+        """
+    else:
+        guest_context = "GUEST UNIDENTIFIED (Treat as new or prospective guest)"
 
     return f"""
-You are Aria, the Intelligent Concierge at {HOTEL_NAME}.
-GOAL: Provide "Better than Human" service.
+You are Aria, the Advanced AI Hotel Manager at {HOTEL_NAME}.
+Your goal is to solve problems instantly using your tools.
 
-CONTEXT:
-{context}
-HOTEL INFO:
+CURRENT GUEST CONTEXT:
+{guest_context}
+
+HOTEL AMENITIES:
 {json.dumps(HOTEL_INFO, indent=2)}
 
-PERSONALITY:
-- Warm, Sunny, Delightful ("It would be my pleasure!").
-- If you know the guest's name, USE IT.
-- If they ordered before, mention it.
+RULES:
+1. **Identify the Guest**: Use their name naturally. "Hello Mr. Ghods, how is Room 402?"
+2. **Take Action**:
+   - If they say "My AC is broken", call `create_maintenance_ticket`.
+   - If they say "What's my bill?", call `check_bill`.
+3. **Be Concise**: 1-2 sentences max.
+4. **Language**: Detect and switch automatically.
 
-OUTPUT FORMAT (JSON ONLY):
+OUTPUT FORMAT (JSON):
 {{
-  "text": "Spoken response (Max 2 sentences)",
+  "text": "Spoken response",
   "language_code": "2-letter ISO code"
 }}
-
-RULES:
-1. Use 'book_room_service' to order food.
-2. Use the provided HOTEL INFO for hours/menu. Do not hallucinate.
-3. If they ask for Wifi, give the real password from info.
 """
 
-def send_sms(to_number: str, body: str):
-    if not twilio_client or not TWILIO_PHONE_NUMBER:
-        return
-    try:
-        twilio_client.messages.create(body=body, from_=TWILIO_PHONE_NUMBER, to=to_number)
-    except Exception as e:
-        logger.error(f"Error sending SMS: {e}")
-
 async def get_ai_response(call_sid: str, user_input: str, caller_number: str) -> Dict[str, str]:
-    """
-    Async wrapper for Gemini interaction
-    """
     try:
         if call_sid not in conversation_history:
              conversation_history[call_sid] = []
 
-        guest = get_guest_profile(caller_number)
-        
-        # Gemini client is synchronous by default, but fast. 
-        # For true async, we'd use the async client (genai.GenerativeModel is sync).
-        # However, we can wrap it or just tolerate the small delay since the TTS is the bottleneck.
-        # Given the library limitations, we'll keep this sync logic wrapped in async def for now.
-        
         model = genai.GenerativeModel(
             model_name="models/gemini-2.0-flash",
             generation_config=generation_config,
-            system_instruction=get_system_prompt(guest),
+            system_instruction=get_system_prompt(caller_number),
             tools=tools
         )
 
@@ -162,19 +136,25 @@ async def get_ai_response(call_sid: str, user_input: str, caller_number: str) ->
             lang = "en"
 
         # Handle Function Calls
-        if not text and response.parts:
+        if response.parts:
              for part in response.parts:
                 if fn := part.function_call:
-                    if fn.name == "book_room_service":
-                        item = fn.args.get("item", "item")
-                        save_last_order(caller_number, item)
-                        text = f"I've confirmed your order for {item}. It will be up shortly!"
+                    if fn.name == "create_maintenance_ticket":
+                        typ = fn.args.get("issue_type", "Concierge")
+                        desc = fn.args.get("description", "Issue")
+                        tkt_id = create_ticket(caller_number, typ, desc)
+                        text = f"I have logged that for you. Your Ticket Number is {tkt_id}. Engineering has been notified."
                     
-                    elif fn.name == "check_hotel_info":
-                        pass
+                    elif fn.name == "check_bill":
+                        bill_info = get_bill_details(caller_number)
+                        text = f"Let me pull that up. {bill_info}"
+
+                    elif fn.name == "book_room_service":
+                        item = fn.args.get("item", "Food")
+                        text = f"Excellent choice. An order of {item} is being prepared for your room."
 
         if not text:
-            text = "I'm working on that request right now."
+            text = "I'm on it."
 
         voice = VOICE_MAP.get(lang, "en-US-Neural2-F")
         conversation_history[call_sid] = chat.history
@@ -183,7 +163,7 @@ async def get_ai_response(call_sid: str, user_input: str, caller_number: str) ->
         
     except Exception as e:
         logger.error(f"Error calling Gemini: {e}")
-        return {"text": "I apologize, I'm having a moment. Could you repeat?", "voice": "en-US-Neural2-F"}
+        return {"text": "I apologize, the system is updating. One moment.", "voice": "en-US-Neural2-F"}
 
 def clear_history(call_sid: str):
     if call_sid in conversation_history:
