@@ -61,9 +61,9 @@ def init_db():
         logger.info("Seeding mock data...")
         
         # Create a VIP Guest (simulating YOU)
-        # You can update the phone number here to your real one to test
+        # Updated with real phone number
         cursor.execute("INSERT INTO guests (phone, name, vip_status) VALUES (?, ?, ?)", 
-                       ("+15551234567", "Saeed Ghods", "Platinum"))
+                       ("+14169006975", "Saeed Ghods", "Platinum"))
         guest_id = cursor.lastrowid
         
         cursor.execute("INSERT INTO bookings (guest_id, room_number, check_in, check_out, balance) VALUES (?, ?, ?, ?, ?)",
