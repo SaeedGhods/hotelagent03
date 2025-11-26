@@ -10,12 +10,19 @@ app = FastAPI()
 
 # Dynamic Configuration
 HOTEL_NAME = os.getenv("HOTEL_NAME", "Grand Hotel")
-VOICE_NAME = os.getenv("VOICE_NAME", "alice") # "alice" is default, try "Polly.Joanna-Neural" for better quality
-WELCOME_MESSAGE = os.getenv("WELCOME_MESSAGE", f"Welcome to {HOTEL_NAME}. How can I assist you today?")
+VOICE_NAME = os.getenv("VOICE_NAME", "alice") 
+# "alice" is default, try "Polly.Joanna-Neural" for better quality
+
+# Version Tracking
+VERSION = "1.0.1"  # Increment this when you make significant changes
+
+# Default greeting (can be overridden by env var, but we append version for testing)
+DEFAULT_GREETING = f"Welcome to {HOTEL_NAME}. Version {VERSION}. How can I assist you today?"
+WELCOME_MESSAGE = os.getenv("WELCOME_MESSAGE", DEFAULT_GREETING)
 
 @app.get("/")
 async def root():
-    return {"message": "Hotel Agent API is running"}
+    return {"message": f"Hotel Agent API is running (v{VERSION})"}
 
 @app.post("/voice")
 async def voice(From: str = Form(...), CallSid: str = Form(...)):
@@ -28,7 +35,10 @@ async def voice(From: str = Form(...), CallSid: str = Form(...)):
     response = VoiceResponse()
     
     # Simple greeting using configured voice and message
-    response.say(WELCOME_MESSAGE, voice=VOICE_NAME)
+    # We re-fetch the env var here in case it changed, but if not set, it uses our versioned default
+    current_greeting = os.getenv("WELCOME_MESSAGE", f"Welcome to {HOTEL_NAME}. Version {VERSION}. How can I assist you today?")
+    
+    response.say(current_greeting, voice=VOICE_NAME)
     
     # Listen for user input
     response.gather(input="speech", action="/handle-speech", timeout=3, language="auto")
@@ -45,7 +55,7 @@ async def handle_speech(CallSid: str = Form(...), SpeechResult: str = Form(None)
     """
     response = VoiceResponse()
     
-    # Re-fetch voice setting in case it changed (though env vars require restart usually)
+    # Re-fetch voice setting in case it changed
     voice_name = os.getenv("VOICE_NAME", "alice")
 
     if not SpeechResult:
