@@ -152,23 +152,32 @@ async def get_ai_response(call_sid: str, user_input: str, caller_number: str) ->
         if response.parts:
              for part in response.parts:
                 if fn := part.function_call:
-                    if fn.name == "create_maintenance_ticket":
-                        typ = fn.args.get("issue_type", "Concierge")
-                        desc = fn.args.get("description", "Issue")
-                        tkt_id = create_ticket(caller_number, typ, desc)
-                        text = f"I have logged that for you. Ticket {tkt_id} created."
-                    
-                    elif fn.name == "check_bill":
-                        bill_info = get_bill_details(caller_number)
-                        text = f"{bill_info}"
+                    try:
+                        if fn.name == "create_maintenance_ticket":
+                            typ = fn.args.get("issue_type", "Concierge")
+                            desc = fn.args.get("description", "Issue")
+                            tkt_id = create_ticket(caller_number, typ, desc)
+                            text = f"I have logged that for you. Ticket {tkt_id} created."
+                        
+                        elif fn.name == "check_bill":
+                            bill_info = get_bill_details(caller_number)
+                            text = f"{bill_info}"
 
-                    elif fn.name == "book_room_service":
-                        item = fn.args.get("item", "Food")
-                        text = f"I've ordered the {item} for you."
-                    
-                    elif fn.name == "transfer_call":
-                        transfer_flag = True
-                        text = "I am connecting you to a manager right away. Please hold."
+                        elif fn.name == "book_room_service":
+                            item = fn.args.get("item", "Food")
+                            # Fix: Ensure quantity is handled if AI sends it, or default to 1
+                            qty = int(fn.args.get("quantity", 1))
+                            text = f"I've ordered {qty} x {item} for you."
+                            # Save order to DB
+                            save_last_order(caller_number, f"{qty} x {item}")
+                        
+                        elif fn.name == "transfer_call":
+                            transfer_flag = True
+                            text = "I am connecting you to a manager right away. Please hold."
+                            
+                    except Exception as tool_err:
+                        logger.error(f"Tool Execution Failed: {tool_err}")
+                        text = "I tried to process that request, but our system is momentarily busy. I've noted it down."
 
         if not text:
             text = "I'm on it."
@@ -180,9 +189,13 @@ async def get_ai_response(call_sid: str, user_input: str, caller_number: str) ->
 
         return {"text": text, "voice": voice, "transfer": transfer_flag}
         
+import traceback
+
+# ... (inside get_ai_response)
+
     except Exception as e:
-        logger.error(f"Error calling Gemini: {e}")
-        # Better fallback
+        logger.error(f"CRITICAL ERROR in AI Service: {e}")
+        logger.error(traceback.format_exc())
         return {"text": "I'm sorry, I didn't quite catch that. Could you say it again?", "voice": "en-US-Neural2-F", "transfer": False}
 
 def clear_history(call_sid: str):
