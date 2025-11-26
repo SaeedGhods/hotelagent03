@@ -58,61 +58,55 @@ tools = [
                 }
             },
             {
-                "name": "book_room_service",
-                "description": "Order food items.",
+                "name": "transfer_call",
+                "description": "Transfer the guest to a human agent/manager.",
                 "parameters": {
                     "type": "OBJECT",
                     "properties": {
-                        "item": {"type": "STRING"},
-                        "quantity": {"type": "INTEGER"}
+                        "reason": {"type": "STRING", "description": "Reason for transfer"}
                     },
-                    "required": ["item"]
+                    "required": ["reason"]
                 }
             }
         ]
     }
 ]
 
-def get_system_prompt(caller_number: str) -> str:
-    # Real-time PMS Lookup
-    booking = get_active_booking(caller_number)
+def get_system_prompt(guest_profile: Dict) -> str:
+    guest_name = guest_profile.get("name", "Guest")
+    last_order = guest_profile.get("last_order")
     
-    if booking:
-        guest_context = f"""
-        GUEST IDENTIFIED: {booking['name']}
-        ROOM: {booking['room_number']}
-        CHECK-OUT: {booking['check_out']}
-        VIP STATUS: Platinum (Mock)
-        """
-    else:
-        guest_context = "GUEST UNIDENTIFIED (Treat as new or prospective guest)"
+    context = f"Guest Phone: {guest_profile['phone']}\n"
+    if guest_name:
+        context += f"Guest Name: {guest_name}\n"
+    if last_order:
+        context += f"Last Order: {last_order}\n"
 
     return f"""
 You are Aria, the Advanced AI Hotel Manager at {HOTEL_NAME}.
-Your goal is to solve problems instantly using your tools.
+GOAL: Provide "Better than Human" service using Real Knowledge and Actions.
 
 CURRENT GUEST CONTEXT:
-{guest_context}
+{context}
 
 HOTEL AMENITIES:
 {json.dumps(HOTEL_INFO, indent=2)}
 
 RULES:
-1. **Identify the Guest**: Use their name naturally. "Hello Mr. Ghods, how is Room 402?"
-2. **Take Action**:
-   - If they say "My AC is broken", call `create_maintenance_ticket`.
-   - If they say "What's my bill?", call `check_bill`.
-3. **Be Concise**: 1-2 sentences max.
-4. **Language**: Detect and switch automatically.
+1. **Identify the Guest**: Use their name naturally.
+2. **Take Action**: Use tools for tickets/bills.
+3. **Transfer**: If the guest is angry, confused, or asks for a human, use `transfer_call`.
+4. **Be Concise**: 1-2 sentences max.
 
 OUTPUT FORMAT (JSON):
 {{
   "text": "Spoken response",
-  "language_code": "2-letter ISO code"
+  "language_code": "2-letter ISO code",
+  "transfer": boolean  // Set true if transferring
 }}
 """
 
-async def get_ai_response(call_sid: str, user_input: str, caller_number: str) -> Dict[str, str]:
+async def get_ai_response(call_sid: str, user_input: str, caller_number: str) -> Dict[str, any]:
     try:
         if call_sid not in conversation_history:
              conversation_history[call_sid] = []
@@ -120,17 +114,20 @@ async def get_ai_response(call_sid: str, user_input: str, caller_number: str) ->
         model = genai.GenerativeModel(
             model_name="models/gemini-2.0-flash",
             generation_config=generation_config,
-            system_instruction=get_system_prompt(caller_number),
+            system_instruction=get_system_prompt(get_guest_profile(caller_number)),
             tools=tools
         )
 
         chat = model.start_chat(history=conversation_history[call_sid])
         response = chat.send_message(user_input)
         
+        transfer_flag = False
+        
         try:
             data = json.loads(response.text)
             text = data.get("text", "")
             lang = data.get("language_code", "en")
+            transfer_flag = data.get("transfer", False)
         except:
             text = response.text
             lang = "en"
@@ -143,15 +140,19 @@ async def get_ai_response(call_sid: str, user_input: str, caller_number: str) ->
                         typ = fn.args.get("issue_type", "Concierge")
                         desc = fn.args.get("description", "Issue")
                         tkt_id = create_ticket(caller_number, typ, desc)
-                        text = f"I have logged that for you. Your Ticket Number is {tkt_id}. Engineering has been notified."
+                        text = f"I have logged that for you. Ticket {tkt_id} created."
                     
                     elif fn.name == "check_bill":
                         bill_info = get_bill_details(caller_number)
-                        text = f"Let me pull that up. {bill_info}"
+                        text = f"{bill_info}"
 
                     elif fn.name == "book_room_service":
                         item = fn.args.get("item", "Food")
-                        text = f"Excellent choice. An order of {item} is being prepared for your room."
+                        text = f"I've ordered the {item} for you."
+                    
+                    elif fn.name == "transfer_call":
+                        transfer_flag = True
+                        text = "I am connecting you to a manager right away. Please hold."
 
         if not text:
             text = "I'm on it."
@@ -159,7 +160,7 @@ async def get_ai_response(call_sid: str, user_input: str, caller_number: str) ->
         voice = VOICE_MAP.get(lang, "en-US-Neural2-F")
         conversation_history[call_sid] = chat.history
 
-        return {"text": text, "voice": voice}
+        return {"text": text, "voice": voice, "transfer": transfer_flag}
         
     except Exception as e:
         logger.error(f"Error calling Gemini: {e}")

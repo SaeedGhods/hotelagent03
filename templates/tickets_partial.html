@@ -1,0 +1,38 @@
+<table class="w-full text-sm text-left">
+    <thead class="text-xs text-slate-400 uppercase bg-slate-800/50">
+        <tr>
+            <th class="px-4 py-3">ID</th>
+            <th class="px-4 py-3">Type</th>
+            <th class="px-4 py-3">Description</th>
+            <th class="px-4 py-3">Status</th>
+            <th class="px-4 py-3">Created</th>
+        </tr>
+    </thead>
+    <tbody class="divide-y divide-slate-700">
+        {% for ticket in tickets %}
+        <tr class="hover:bg-slate-700/30 transition">
+            <td class="px-4 py-3 font-mono text-xs text-slate-500">#{{ ticket.id }}</td>
+            <td class="px-4 py-3">
+                <span class="px-2 py-1 rounded text-xs font-medium 
+                    {% if ticket.type == 'Engineering' %}bg-red-500/20 text-red-400
+                    {% elif ticket.type == 'Housekeeping' %}bg-blue-500/20 text-blue-400
+                    {% else %}bg-purple-500/20 text-purple-400{% endif %}">
+                    {{ ticket.type }}
+                </span>
+            </td>
+            <td class="px-4 py-3 text-slate-300">{{ ticket.description }}</td>
+            <td class="px-4 py-3">
+                <span class="bg-yellow-500/10 text-yellow-500 px-2 py-1 rounded-full text-xs">
+                    {{ ticket.status }}
+                </span>
+            </td>
+            <td class="px-4 py-3 text-slate-500 text-xs">{{ ticket.created_at }}</td>
+        </tr>
+        {% else %}
+        <tr>
+            <td colspan="5" class="px-4 py-8 text-center text-slate-500 italic">No active tickets.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
