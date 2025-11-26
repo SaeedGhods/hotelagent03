@@ -51,10 +51,9 @@ def get_ai_response(call_sid: str, user_input: str) -> str:
              conversation_history[call_sid] = []
 
         # Create model instance with dynamic configuration
-        # Using a widely supported model name alias "gemini-pro"
-        # If this fails, we might need "models/gemini-pro" or "gemini-1.0-pro"
+        # We have confirmed "models/gemini-2.0-flash" is available and excellent
         model = genai.GenerativeModel(
-            model_name="gemini-1.0-pro", 
+            model_name="models/gemini-2.0-flash", 
             generation_config=generation_config,
             system_instruction=get_system_prompt()
         )
