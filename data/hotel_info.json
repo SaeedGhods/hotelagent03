@@ -1,49 +1,78 @@
 {
-    "hotel_name": "Grand Hotel",
-    "check_in": "3:00 PM",
+    "hotel_name": "Marriott Marquis",
+    "brand": "Marriott Hotels & Resorts",
+    "loyalty_program": "Marriott Bonvoy",
+    "check_in": "4:00 PM",
     "check_out": "11:00 AM",
     "wifi": {
-        "network": "GrandHotel_Guest",
-        "password": "luxury_stays"
+        "network": "Marriott_GUEST",
+        "password": "Join Bonvoy for Free Wifi",
+        "details": "Complimentary for Bonvoy Members. $14.95/day for non-members."
     },
     "facilities": {
-        "pool": {
-            "location": "Rooftop (25th Floor)",
-            "hours": "6:00 AM - 10:00 PM",
-            "details": "Heated infinity pool. Adult only after 8 PM."
+        "m_club": {
+            "name": "M Club Lounge",
+            "location": "Lobby Level",
+            "hours": "24/7 for access. Breakfast: 6:30-9:30 AM. Hors d'oeuvres: 5:30-7:30 PM.",
+            "access": "Platinum Elite and above, or Executive Room guests."
         },
-        "gym": {
-            "location": "3rd Floor",
+        "fitness_center": {
+            "location": "5th Floor",
             "hours": "24/7",
-            "details": "Technogym equipment, yoga studio available."
+            "equipment": "Peloton bikes, LifeFitness cardio, Free weights."
         },
-        "spa": {
-            "name": "Serenity Spa",
-            "location": "2nd Floor",
-            "hours": "9:00 AM - 8:00 PM",
-            "services": ["Massage", "Facial", "Sauna", "Steam Room"]
+        "pool": {
+            "location": "Outdoor Terrace (5th Floor)",
+            "hours": "6:00 AM - 10:00 PM",
+            "details": "Heated. Towels provided."
         },
-        "restaurant": {
-            "name": "The Grand Bistro",
-            "cuisine": "Modern French",
-            "hours": {
-                "breakfast": "6:30 AM - 10:30 AM",
-                "lunch": "12:00 PM - 2:30 PM",
-                "dinner": "6:00 PM - 10:30 PM"
-            },
-            "dress_code": "Smart Casual"
+        "business_center": {
+            "location": "Mezzanine",
+            "hours": "24/7",
+            "services": "Printing, Copying, Shipping (FedEx)."
         }
     },
-    "room_service_menu": [
-        {"item": "Grand Burger", "price": 28, "details": "Wagyu beef, truffle mayo, brioche bun"},
-        {"item": "Club Sandwich", "price": 24, "details": "Turkey, bacon, avocado, sourdough"},
-        {"item": "Caesar Salad", "price": 20, "details": "Romaine, parmesan, croutons (Add Chicken +$8)"},
-        {"item": "Filet Mignon", "price": 45, "details": "8oz, red wine reduction, mashed potatoes"},
-        {"item": "Chocolate Fondant", "price": 16, "details": "Vanilla bean ice cream"}
-    ],
-    "policies": {
-        "pets": "Pet friendly (up to 25lbs) with $100 deposit.",
-        "smoking": "Strictly non-smoking property. $500 fine."
+    "dining": {
+        "restaurant": {
+            "name": "Velocity Bar & Grill",
+            "cuisine": "American",
+            "hours": "11:00 AM - 12:00 AM",
+            "happy_hour": "4:00 PM - 6:00 PM daily"
+        },
+        "coffee_shop": {
+            "name": "Starbucks",
+            "location": "Lobby",
+            "hours": "6:00 AM - 6:00 PM"
+        }
+    },
+    "room_service_menu": {
+        "breakfast": [
+            {"item": "All-American Breakfast", "price": 26, "details": "Two eggs, bacon or sausage, hash browns, toast"},
+            {"item": "Avocado Toast", "price": 18, "details": "Poached egg, radish, chili flakes, sourdough"},
+            {"item": "Buttermilk Pancakes", "price": 19, "details": "Maple syrup, berry compote"}
+        ],
+        "all_day": [
+            {"item": "Marriott Burger", "price": 24, "details": "Cheddar, bacon, LTOP, brioche bun, fries"},
+            {"item": "Club Sandwich", "price": 21, "details": "Roasted turkey, bacon, lettuce, tomato, mayo"},
+            {"item": "Caesar Salad", "price": 18, "details": "Romaine hearts, parmesan, croutons"},
+            {"item": "Crispy Chicken Wings", "price": 19, "details": "Buffalo or BBQ sauce, ranch"},
+            {"item": "Margherita Pizza", "price": 22, "details": "Fresh mozzarella, basil, tomato sauce"},
+            {"item": "Grilled Salmon", "price": 32, "details": "Asparagus, roasted potatoes, lemon butter"}
+        ],
+        "dessert": [
+            {"item": "NY Cheesecake", "price": 12, "details": "Raspberry coulis"},
+            {"item": "Warm Chocolate Brownie", "price": 12, "details": "Vanilla ice cream"}
+        ],
+        "drinks": [
+            {"item": "Soda (Coke/Diet/Sprite)", "price": 5},
+            {"item": "Bottled Water (Fiji)", "price": 8},
+            {"item": "Domestic Beer", "price": 9},
+            {"item": "Glass of Cabernet", "price": 14}
+        ]
+    },
+    "services": {
+        "housekeeping": "Daily service upon request. Text us if you need extra towels.",
+        "mobile_key": "Available via the Marriott Bonvoy App.",
+        "late_checkout": "Subject to availability. Complimentary for Gold/Platinum members up to 2 PM."
     }
 }
-
