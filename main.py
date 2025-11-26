@@ -38,8 +38,20 @@ def cleanup_static_files():
 
 @app.on_event("startup")
 async def startup_event():
-    # Pre-check env vars
-    pass
+    """
+    Generate welcome audio on startup to ensure it exists in the ephemeral filesystem.
+    """
+    welcome_file = "static/welcome.mp3"
+    if not os.path.exists(welcome_file):
+        print("Generating welcome.mp3 on startup...")
+        # Generate synchronously or await if we make generate_audio fully async compatible here
+        # Since we are in startup, sync is fine or we await the async function
+        welcome_text = f"Welcome to {HOTEL_NAME}! It is my absolute pleasure to serve you. How may I brighten your stay today?"
+        
+        # We need to call the async function.
+        # Since we are in an async loop, we can await it directly.
+        await generate_audio(welcome_text, output_filename=welcome_file)
+        print("Welcome audio generated.")
 
 @app.get("/")
 async def root():
