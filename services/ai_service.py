@@ -83,7 +83,7 @@ def get_system_prompt(guest_profile: Dict) -> str:
         context += f"Last Order: {last_order}\n"
 
     return f"""
-You are Aria, the Advanced AI Hotel Manager at {HOTEL_NAME}.
+You are Nasrin, the Advanced AI Hotel Manager at {HOTEL_NAME}.
 GOAL: Provide "Better than Human" service using Real Knowledge and Actions.
 
 CURRENT GUEST CONTEXT:

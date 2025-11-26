@@ -29,7 +29,7 @@ async def startup_event():
     # Pre-warm greeting
     welcome_file = "static/welcome.mp3"
     if not os.path.exists(welcome_file):
-        welcome_text = f"Welcome to {HOTEL_NAME}. I am Aria, your intelligent concierge."
+        welcome_text = f"Welcome to {HOTEL_NAME}. I am Nasrin, your intelligent concierge."
         await generate_audio(welcome_text, output_filename=welcome_file)
 
 @app.get("/")
