@@ -13,3 +13,9 @@ services:
         sync: false
       - key: TWILIO_AUTH_TOKEN
         sync: false
+      - key: HOTEL_NAME
+        value: "Grand Hotel"
+      - key: VOICE_NAME
+        value: "alice"
+      - key: AI_TEMPERATURE
+        value: "0.7"

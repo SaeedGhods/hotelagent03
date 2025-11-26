@@ -2,12 +2,16 @@ import os
 from fastapi import FastAPI, Form, Response
 from twilio.twiml.voice_response import VoiceResponse
 from dotenv import load_dotenv
+from services.ai_service import get_ai_response, clear_history
 
 load_dotenv()
 
-from services.ai_service import get_ai_response, clear_history
-
 app = FastAPI()
+
+# Dynamic Configuration
+HOTEL_NAME = os.getenv("HOTEL_NAME", "Grand Hotel")
+VOICE_NAME = os.getenv("VOICE_NAME", "alice") # "alice" is default, try "Polly.Joanna-Neural" for better quality
+WELCOME_MESSAGE = os.getenv("WELCOME_MESSAGE", f"Welcome to {HOTEL_NAME}. How can I assist you today?")
 
 @app.get("/")
 async def root():
@@ -23,12 +27,8 @@ async def voice(From: str = Form(...), CallSid: str = Form(...)):
     
     response = VoiceResponse()
     
-    # Simple greeting
-    greeting = "Welcome to the Grand Hotel. How can I assist you today?"
-    # We can also add this greeting to the history so the AI knows it started
-    # (Optional, but good for context)
-    
-    response.say(greeting, voice="alice")
+    # Simple greeting using configured voice and message
+    response.say(WELCOME_MESSAGE, voice=VOICE_NAME)
     
     # Listen for user input
     response.gather(input="speech", action="/handle-speech", timeout=3, language="auto")
@@ -45,9 +45,12 @@ async def handle_speech(CallSid: str = Form(...), SpeechResult: str = Form(None)
     """
     response = VoiceResponse()
     
+    # Re-fetch voice setting in case it changed (though env vars require restart usually)
+    voice_name = os.getenv("VOICE_NAME", "alice")
+
     if not SpeechResult:
         # If silence/timeout, re-prompt
-        response.say("I didn't catch that. Could you please repeat?", voice="alice")
+        response.say("I didn't catch that. Could you please repeat?", voice=voice_name)
         response.gather(input="speech", action="/handle-speech", timeout=3, language="auto")
         return Response(content=str(response), media_type="application/xml")
 
@@ -55,13 +58,7 @@ async def handle_speech(CallSid: str = Form(...), SpeechResult: str = Form(None)
     ai_text = get_ai_response(CallSid, SpeechResult)
     
     # Speak back
-    # Note: voice="alice" is a placeholder. Twilio has Neural voices that are better.
-    # We can let the AI decide the language, but Twilio <Say> needs a language code for best results.
-    # For now, we'll stick to default or try to detect.
-    # OpenAI GPT-4o is good at outputting text, but we need to tell Twilio how to pronounce it if it's mixed.
-    # However, Twilio's standard voices are decent at auto-detect if the text is clearly one language.
-    
-    response.say(ai_text, voice="alice")
+    response.say(ai_text, voice=voice_name)
     
     # Loop back for more conversation
     response.gather(input="speech", action="/handle-speech", timeout=3, language="auto")
@@ -71,4 +68,3 @@ async def handle_speech(CallSid: str = Form(...), SpeechResult: str = Form(None)
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
-
