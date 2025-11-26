@@ -11,12 +11,15 @@ load_dotenv()
 
 app = FastAPI()
 
+# Ensure static directory exists before mounting
+os.makedirs("static", exist_ok=True)
+
 # Mount static directory to serve audio files
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 HOTEL_NAME = os.getenv("HOTEL_NAME", "Grand Hotel")
-VERSION = "1.2.0-ELEVENLABS" 
-HOST_URL = os.getenv("HOST_URL", "https://hotel-agent-uwpc.onrender.com") # Needs to be set or auto-detected
+VERSION = "1.2.1-HOTFIX" 
+HOST_URL = os.getenv("HOST_URL", "https://hotel-agent-uwpc.onrender.com") 
 
 @app.get("/")
 async def root():
@@ -30,9 +33,7 @@ async def voice(From: str = Form(...), CallSid: str = Form(...)):
     # Default English Greeting
     greeting_text = f"Welcome to {HOTEL_NAME}. How can I help you?"
     
-    # Try generating audio for greeting (Optional latency hit, but consistent quality)
-    # For speed on first pickup, maybe stick to Twilio or pre-generate this file.
-    # Let's stick to Twilio Neural for greeting to be instant.
+    # Use English Neural Voice by default
     response.say(greeting_text, voice="en-US-Neural2-F")
     
     response.gather(input="speech", action="/handle-speech", timeout=3, language="auto")
