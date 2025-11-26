@@ -35,16 +35,52 @@
             "dress_code": "Smart Casual"
         }
     },
-    "room_service_menu": [
-        {"item": "Grand Burger", "price": 28, "details": "Wagyu beef, truffle mayo, brioche bun"},
-        {"item": "Club Sandwich", "price": 24, "details": "Turkey, bacon, avocado, sourdough"},
-        {"item": "Caesar Salad", "price": 20, "details": "Romaine, parmesan, croutons (Add Chicken +$8)"},
-        {"item": "Filet Mignon", "price": 45, "details": "8oz, red wine reduction, mashed potatoes"},
-        {"item": "Margherita Pizza", "price": 22, "details": "Fresh mozzarella, basil, tomato sauce"},
-        {"item": "Pepperoni Pizza", "price": 24, "details": "Spicy pepperoni, mozzarella"},
-        {"item": "Chocolate Fondant", "price": 16, "details": "Vanilla bean ice cream"},
-        {"item": "Champagne", "price": 120, "details": "Bottle of Veuve Clicquot"}
-    ],
+    "room_service_menu": {
+        "starters": [
+            {"item": "Soup of the Day", "price": 12, "details": "Chef's seasonal selection"},
+            {"item": "Caesar Salad", "price": 18, "details": "Romaine, parmesan, croutons (Add Chicken +$8)"},
+            {"item": "Crispy Calamari", "price": 20, "details": "Marinara sauce, lemon"},
+            {"item": "Jumbo Shrimp Cocktail", "price": 24, "details": "Four chilled prawns, cocktail sauce"},
+            {"item": "Truffle Fries", "price": 14, "details": "Parmesan, truffle oil, garlic aioli"}
+        ],
+        "mains": [
+            {"item": "Grand Burger", "price": 28, "details": "Wagyu beef, truffle mayo, brioche bun, fries"},
+            {"item": "Club Sandwich", "price": 24, "details": "Turkey, bacon, avocado, sourdough, chips"},
+            {"item": "Filet Mignon", "price": 45, "details": "8oz, red wine reduction, mashed potatoes"},
+            {"item": "Grilled Salmon", "price": 34, "details": "Asparagus, lemon butter sauce"},
+            {"item": "Roasted Chicken Breast", "price": 29, "details": "Herb roasted, seasonal vegetables"},
+            {"item": "Penne Alfredo", "price": 26, "details": "Creamy parmesan sauce (Add Shrimp +$10)"},
+            {"item": "Vegetable Curry", "price": 24, "details": "Basmati rice, naan bread (Vegan)"}
+        ],
+        "pizza": [
+            {"item": "Margherita Pizza", "price": 22, "details": "Fresh mozzarella, basil, tomato sauce"},
+            {"item": "Pepperoni Pizza", "price": 24, "details": "Spicy pepperoni, mozzarella"},
+            {"item": "Veggie Deluxe Pizza", "price": 23, "details": "Peppers, onions, mushrooms, olives"}
+        ],
+        "desserts": [
+            {"item": "NY Cheesecake", "price": 14, "details": "Raspberry coulis"},
+            {"item": "Chocolate Fondant", "price": 16, "details": "Vanilla bean ice cream"},
+            {"item": "Fresh Fruit Plate", "price": 14, "details": "Seasonal berries and melon"},
+            {"item": "Artisan Cheese Board", "price": 22, "details": "Selection of 3 cheeses, crackers, honey"}
+        ],
+        "kids": [
+            {"item": "Chicken Fingers", "price": 14, "details": "With fries"},
+            {"item": "Mac & Cheese", "price": 12, "details": "Creamy cheddar sauce"},
+            {"item": "Mini Cheeseburgers", "price": 16, "details": "Two sliders, fries"}
+        ],
+        "beverages": [
+            {"item": "Soft Drink", "price": 6, "details": "Coke, Diet Coke, Sprite, Ginger Ale"},
+            {"item": "Juice", "price": 8, "details": "Orange, Apple, Cranberry"},
+            {"item": "Still Water (Fiji)", "price": 10, "details": "1L"},
+            {"item": "Sparkling Water (San Pellegrino)", "price": 10, "details": "1L"},
+            {"item": "Coffee", "price": 6, "details": "Regular or Decaf"},
+            {"item": "Tea", "price": 6, "details": "Earl Grey, Mint, Green, Chamomile"},
+            {"item": "Domestic Beer", "price": 9, "details": "Bud Light, Miller Lite"},
+            {"item": "Import Beer", "price": 10, "details": "Stella, Corona, Heineken"},
+            {"item": "Glass of House Wine", "price": 14, "details": "Red or White"},
+            {"item": "Bottle of Champagne", "price": 120, "details": "Veuve Clicquot"}
+        ]
+    },
     "policies": {
         "pets": "Pet friendly (up to 25lbs) with $100 deposit.",
         "smoking": "Strictly non-smoking property. $500 fine."
