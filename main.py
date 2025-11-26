@@ -1,25 +1,45 @@
 import os
-from fastapi import FastAPI, Form, Response
+import time
+import asyncio
+from fastapi import FastAPI, Form, Response, BackgroundTasks
 from fastapi.staticfiles import StaticFiles
 from twilio.twiml.voice_response import VoiceResponse
 from dotenv import load_dotenv
 from services.ai_service import get_ai_response, clear_history
 from services.tts_service import generate_audio
-import google.generativeai as genai
 
 load_dotenv()
 
 app = FastAPI()
 
-# Ensure static directory exists before mounting
 os.makedirs("static", exist_ok=True)
-
-# Mount static directory to serve audio files
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 HOTEL_NAME = os.getenv("HOTEL_NAME", "Grand Hotel")
-VERSION = "2.0.0-SMART-CORE" 
+VERSION = "2.1.0-ASYNC-REFACTOR" 
 HOST_URL = os.getenv("HOST_URL", "https://hotel-agent-uwpc.onrender.com") 
+
+def cleanup_static_files():
+    """
+    Deletes MP3 files older than 1 hour to save space.
+    """
+    folder = "static"
+    current_time = time.time()
+    for f in os.listdir(folder):
+        if f == "welcome.mp3": continue # Keep the welcome message
+        
+        file_path = os.path.join(folder, f)
+        if os.path.isfile(file_path):
+            if os.path.getmtime(file_path) < current_time - 3600:
+                try:
+                    os.remove(file_path)
+                except Exception:
+                    pass
+
+@app.on_event("startup")
+async def startup_event():
+    # Pre-check env vars
+    pass
 
 @app.get("/")
 async def root():
@@ -30,9 +50,7 @@ async def voice(From: str = Form(...), CallSid: str = Form(...)):
     clear_history(CallSid)
     response = VoiceResponse()
     
-    # Use Pre-Generated Audio for Instant, High-Quality Greeting
     welcome_file = "static/welcome.mp3"
-    
     if os.path.exists(welcome_file):
          clean_host = HOST_URL.rstrip("/")
          audio_url = f"{clean_host}/{welcome_file}"
@@ -45,10 +63,15 @@ async def voice(From: str = Form(...), CallSid: str = Form(...)):
     return Response(content=str(response), media_type="application/xml")
 
 @app.post("/handle-speech")
-async def handle_speech(CallSid: str = Form(...), From: str = Form(...), SpeechResult: str = Form(None)):
-    """
-    Note: Added 'From' parameter to track guest phone number
-    """
+async def handle_speech(
+    background_tasks: BackgroundTasks,
+    CallSid: str = Form(...), 
+    From: str = Form(...), 
+    SpeechResult: str = Form(None)
+):
+    # Schedule cleanup
+    background_tasks.add_task(cleanup_static_files)
+    
     response = VoiceResponse()
     
     if not SpeechResult:
@@ -56,12 +79,12 @@ async def handle_speech(CallSid: str = Form(...), From: str = Form(...), SpeechR
         response.gather(input="speech", action="/handle-speech", timeout=3, language="auto")
         return Response(content=str(response), media_type="application/xml")
 
-    # Get AI response (Pass Caller Number)
-    ai_result = get_ai_response(CallSid, SpeechResult, From)
+    # Get AI response (Now Awaitable)
+    ai_result = await get_ai_response(CallSid, SpeechResult, From)
     ai_text = ai_result["text"]
     
-    # Generate Audio via ElevenLabs
-    audio_file_path = generate_audio(ai_text)
+    # Generate Audio via ElevenLabs (Now Awaitable)
+    audio_file_path = await generate_audio(ai_text)
     
     if audio_file_path:
         clean_host = HOST_URL.rstrip("/")

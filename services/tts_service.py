@@ -1,15 +1,15 @@
 import os
-import requests
 import uuid
+import aiohttp # Async HTTP client
+import asyncio
 
 ELEVENLABS_API_KEY = os.getenv("ELEVENLABS_API_KEY")
 # Voice ID: "Sarah" (Soft, Pleasant, 5-Star Service)
-# Old: "21m00Tcm4TlvDq8ikWAM" (Rachel)
 DEFAULT_VOICE_ID = "EXAVITQu4vr4xnSDxMaL" 
 
-def generate_audio(text: str, output_filename: str = None) -> str:
+async def generate_audio(text: str, output_filename: str = None) -> str:
     """
-    Generates audio from text using ElevenLabs API and saves it locally.
+    Generates audio from text using ElevenLabs API asynchronously.
     Returns the path to the file.
     """
     if not ELEVENLABS_API_KEY:
@@ -32,25 +32,27 @@ def generate_audio(text: str, output_filename: str = None) -> str:
     
     data = {
         "text": text,
-        "model_id": "eleven_turbo_v2_5", # Newer model, lower latency, better multilingual
+        "model_id": "eleven_turbo_v2_5",
         "voice_settings": {
-            "stability": 0.6,       # Higher stability = less random/emotional, more consistent
-            "similarity_boost": 0.8, # High boost = sticks closer to the original voice tone
-            "style": 0.5,           # Add a bit of expressive style
+            "stability": 0.6,
+            "similarity_boost": 0.8,
+            "style": 0.5,
             "use_speaker_boost": True
         }
     }
 
     try:
-        response = requests.post(url, json=data, headers=headers)
-        if response.status_code == 200:
-            with open(output_filename, 'wb') as f:
-                f.write(response.content)
-            return output_filename
-        else:
-            print(f"ElevenLabs Error: {response.text}")
-            return None
+        async with aiohttp.ClientSession() as session:
+            async with session.post(url, json=data, headers=headers) as response:
+                if response.status == 200:
+                    content = await response.read()
+                    with open(output_filename, 'wb') as f:
+                        f.write(content)
+                    return output_filename
+                else:
+                    error_text = await response.text()
+                    print(f"ElevenLabs Error: {error_text}")
+                    return None
     except Exception as e:
         print(f"Error calling ElevenLabs: {e}")
         return None
-

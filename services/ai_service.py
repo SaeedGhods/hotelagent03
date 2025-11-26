@@ -2,27 +2,37 @@ import os
 import google.generativeai as genai
 from typing import List, Dict, Optional
 import json
+import logging
 from twilio.rest import Client
 from services.guest_service import get_guest_profile, save_last_order
 
-# In-memory storage for chat history
+# Configure Logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+# In-memory storage
 conversation_history: Dict[str, List[Dict[str, str]]] = {}
 
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 
-# Load Hotel Info
+# Robust Config Loading
 try:
     with open("data/hotel_info.json", "r") as f:
         HOTEL_INFO = json.load(f)
-except:
-    HOTEL_INFO = {"error": "Could not load hotel info"}
+except Exception as e:
+    logger.error(f"Failed to load hotel_info.json: {e}")
+    HOTEL_INFO = {"error": "Hotel info unavailable"}
 
 HOTEL_NAME = os.getenv("HOTEL_NAME", "Grand Hotel")
 AI_TEMPERATURE = float(os.getenv("AI_TEMPERATURE", "0.4"))
 
-# Twilio Client for SMS
-twilio_client = Client(os.getenv("TWILIO_ACCOUNT_SID"), os.getenv("TWILIO_AUTH_TOKEN"))
-TWILIO_PHONE_NUMBER = os.getenv("TWILIO_PHONE_NUMBER") # Needs to be added to Render
+# Twilio Client (Optional)
+try:
+    twilio_client = Client(os.getenv("TWILIO_ACCOUNT_SID"), os.getenv("TWILIO_AUTH_TOKEN"))
+    TWILIO_PHONE_NUMBER = os.getenv("TWILIO_PHONE_NUMBER")
+except:
+    twilio_client = None
+    TWILIO_PHONE_NUMBER = None
 
 generation_config = {
     "temperature": AI_TEMPERATURE,
@@ -49,7 +59,7 @@ tools = [
         "function_declarations": [
             {
                 "name": "book_room_service",
-                "description": "Order food/items AND send SMS confirmation to guest.",
+                "description": "Order food/items",
                 "parameters": {
                     "type": "OBJECT",
                     "properties": {
@@ -75,7 +85,6 @@ tools = [
 ]
 
 def get_system_prompt(guest_profile: Dict) -> str:
-    # Personalize prompt based on guest
     guest_name = guest_profile.get("name", "Guest")
     last_order = guest_profile.get("last_order")
     
@@ -86,8 +95,8 @@ def get_system_prompt(guest_profile: Dict) -> str:
         context += f"Last Order: {last_order}\n"
 
     return f"""
-You are Aria, the Intelligent Concierge at {HOTEL_NAME}.
-GOAL: Provide "Better than Human" service using Real Knowledge and Actions.
+You are Aria, the Intelligent Concierge at {HOTEL_NAME} (Marriott).
+GOAL: Provide "Better than Human" service.
 
 CONTEXT:
 {context}
@@ -97,7 +106,7 @@ HOTEL INFO:
 PERSONALITY:
 - Warm, Sunny, Delightful ("It would be my pleasure!").
 - If you know the guest's name, USE IT.
-- If they ordered before, mention it ("Would you like the Club Sandwich again?").
+- If they ordered before, mention it.
 
 OUTPUT FORMAT (JSON ONLY):
 {{
@@ -112,32 +121,27 @@ RULES:
 """
 
 def send_sms(to_number: str, body: str):
-    """
-    Sends an SMS via Twilio
-    """
-    if not TWILIO_PHONE_NUMBER:
-        print("No TWILIO_PHONE_NUMBER set, skipping SMS.")
+    if not twilio_client or not TWILIO_PHONE_NUMBER:
         return
     try:
-        message = twilio_client.messages.create(
-            body=body,
-            from_=TWILIO_PHONE_NUMBER,
-            to=to_number
-        )
-        print(f"SMS Sent: {message.sid}")
+        twilio_client.messages.create(body=body, from_=TWILIO_PHONE_NUMBER, to=to_number)
     except Exception as e:
-        print(f"Error sending SMS: {e}")
+        logger.error(f"Error sending SMS: {e}")
 
-def get_ai_response(call_sid: str, user_input: str, caller_number: str) -> Dict[str, str]:
+async def get_ai_response(call_sid: str, user_input: str, caller_number: str) -> Dict[str, str]:
     """
-    Returns {'text': ..., 'voice': ...}
+    Async wrapper for Gemini interaction
     """
     try:
         if call_sid not in conversation_history:
              conversation_history[call_sid] = []
 
-        # Load Guest Profile
         guest = get_guest_profile(caller_number)
+        
+        # Gemini client is synchronous by default, but fast. 
+        # For true async, we'd use the async client (genai.GenerativeModel is sync).
+        # However, we can wrap it or just tolerate the small delay since the TTS is the bottleneck.
+        # Given the library limitations, we'll keep this sync logic wrapped in async def for now.
         
         model = genai.GenerativeModel(
             model_name="models/gemini-2.0-flash",
@@ -163,21 +167,12 @@ def get_ai_response(call_sid: str, user_input: str, caller_number: str) -> Dict[
                 if fn := part.function_call:
                     if fn.name == "book_room_service":
                         item = fn.args.get("item", "item")
-                        # Save to history
                         save_last_order(caller_number, item)
-                        
-                        # SMS Disabled for now as per user request
-                        # sms_body = f"Grand Hotel: Order Confirmed! {item} is on its way."
-                        # send_sms(caller_number, sms_body)
-                        
                         text = f"I've confirmed your order for {item}. It will be up shortly!"
                     
                     elif fn.name == "check_hotel_info":
-                        # The model usually has the info in context, this is just a signal
-                        # Ideally we would query a vector DB here, but prompt context handles it.
                         pass
 
-        # Fallback text
         if not text:
             text = "I'm working on that request right now."
 
@@ -187,7 +182,7 @@ def get_ai_response(call_sid: str, user_input: str, caller_number: str) -> Dict[
         return {"text": text, "voice": voice}
         
     except Exception as e:
-        print(f"Error calling Gemini: {e}")
+        logger.error(f"Error calling Gemini: {e}")
         return {"text": "I apologize, I'm having a moment. Could you repeat?", "voice": "en-US-Neural2-F"}
 
 def clear_history(call_sid: str):
