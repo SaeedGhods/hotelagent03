@@ -1,5 +1,6 @@
 {
     "hotel_name": "Grand Hotel",
+    "brand": "Luxury Collection",
     "check_in": "3:00 PM",
     "check_out": "11:00 AM",
     "wifi": {
@@ -16,73 +17,110 @@
         "gym": {
             "location": "3rd Floor",
             "hours": "24/7",
-            "details": "State-of-the-art equipment, yoga studio."
+            "details": "State-of-the-art Technogym equipment, yoga studio, peloton bikes."
         },
         "spa": {
             "name": "Serenity Spa",
             "location": "2nd Floor",
             "hours": "9:00 AM - 8:00 PM",
-            "services": ["Massage", "Facial", "Sauna", "Steam Room"]
-        },
-        "restaurant": {
-            "name": "The Grand Bistro",
-            "cuisine": "Modern European",
-            "hours": {
-                "breakfast": "6:30 AM - 10:30 AM",
-                "lunch": "12:00 PM - 2:30 PM",
-                "dinner": "6:00 PM - 10:30 PM"
-            },
-            "dress_code": "Smart Casual"
+            "services": ["Deep Tissue Massage", "Swedish Massage", "Facial", "Sauna", "Steam Room"]
         }
     },
     "room_service_menu": {
-        "starters": [
-            {"item": "Soup of the Day", "price": 12, "details": "Chef's seasonal selection"},
-            {"item": "Caesar Salad", "price": 18, "details": "Romaine, parmesan, croutons (Add Chicken +$8)"},
-            {"item": "Crispy Calamari", "price": 20, "details": "Marinara sauce, lemon"},
-            {"item": "Jumbo Shrimp Cocktail", "price": 24, "details": "Four chilled prawns, cocktail sauce"},
-            {"item": "Truffle Fries", "price": 14, "details": "Parmesan, truffle oil, garlic aioli"}
-        ],
-        "mains": [
-            {"item": "Grand Burger", "price": 28, "details": "Wagyu beef, truffle mayo, brioche bun, fries"},
-            {"item": "Club Sandwich", "price": 24, "details": "Turkey, bacon, avocado, sourdough, chips"},
-            {"item": "Filet Mignon", "price": 45, "details": "8oz, red wine reduction, mashed potatoes"},
-            {"item": "Grilled Salmon", "price": 34, "details": "Asparagus, lemon butter sauce"},
-            {"item": "Roasted Chicken Breast", "price": 29, "details": "Herb roasted, seasonal vegetables"},
-            {"item": "Penne Alfredo", "price": 26, "details": "Creamy parmesan sauce (Add Shrimp +$10)"},
-            {"item": "Vegetable Curry", "price": 24, "details": "Basmati rice, naan bread (Vegan)"}
-        ],
-        "pizza": [
-            {"item": "Margherita Pizza", "price": 22, "details": "Fresh mozzarella, basil, tomato sauce"},
-            {"item": "Pepperoni Pizza", "price": 24, "details": "Spicy pepperoni, mozzarella"},
-            {"item": "Veggie Deluxe Pizza", "price": 23, "details": "Peppers, onions, mushrooms, olives"}
-        ],
+        "breakfast": {
+            "hours": "6:00 AM - 11:00 AM",
+            "items": [
+                {"name": "All-American Breakfast", "price": 28, "desc": "Two eggs any style, hash browns, toast, choice of bacon, pork sausage, or chicken sausage."},
+                {"name": "Three-Egg Omelet", "price": 24, "desc": "Choice of: Cheese, Ham, Peppers, Onions, Mushrooms, Spinach. Served with toast."},
+                {"name": "Buttermilk Pancakes", "price": 22, "desc": "Whipped butter, warm maple syrup, berry compote."},
+                {"name": "Brioche French Toast", "price": 22, "desc": "Cinnamon batter, caramelized bananas, walnuts."},
+                {"name": "Avocado Toast", "price": 20, "desc": "Poached egg, sourdough, radish, chili flakes, microgreens."},
+                {"name": "Steel Cut Oatmeal", "price": 16, "desc": "Brown sugar, raisins, milk (whole/skim/almond/oat)."},
+                {"name": "Yogurt Parfait", "price": 14, "desc": "Greek yogurt, house-made granola, seasonal berries."},
+                {"name": "Continental Basket", "price": 18, "desc": "Croissant, danish, muffin, butter, jams."}
+            ]
+        },
+        "all_day_dining": {
+            "hours": "11:00 AM - 10:00 PM",
+            "starters": [
+                {"name": "Soup of the Day", "price": 12, "desc": "Chef's daily creation."},
+                {"name": "French Onion Soup", "price": 14, "desc": "Gruyere crouton, beef broth."},
+                {"name": "Caesar Salad", "price": 18, "desc": "Romaine hearts, shaved parmesan, garlic croutons. Add Chicken +$8, Salmon +$12, Shrimp +$10."},
+                {"name": "Jumbo Shrimp Cocktail", "price": 24, "desc": "Four chilled prawns, spicy cocktail sauce, lemon."},
+                {"name": "Crispy Calamari", "price": 20, "desc": "Marinara sauce, lemon wedges."},
+                {"name": "Artisan Cheese Plate", "price": 24, "desc": "Three cheeses, honeycomb, crackers, nuts."},
+                {"name": "Hummus & Pita", "price": 16, "desc": "Olive oil, paprika, warm pita bread, cucumber."}
+            ],
+            "mains": [
+                {"name": "Grand Burger", "price": 28, "desc": "8oz Wagyu beef, cheddar, bacon, lettuce, tomato, truffle mayo, brioche bun. Fries or Salad."},
+                {"name": "Club Sandwich", "price": 24, "desc": "Roasted turkey, bacon, lettuce, tomato, mayo, toasted sourdough. Fries or Salad."},
+                {"name": "Steak Frites", "price": 42, "desc": "10oz NY Strip, peppercorn sauce, truffle fries."},
+                {"name": "Filet Mignon", "price": 48, "desc": "8oz tenderloin, mashed potatoes, asparagus, red wine reduction."},
+                {"name": "Roasted Salmon", "price": 34, "desc": "Lemon butter sauce, quinoa, roasted vegetables."},
+                {"name": "Penne Alfredo", "price": 26, "desc": "Creamy parmesan sauce, garlic bread. Add Chicken +$8, Shrimp +$10."},
+                {"name": "Vegetable Curry", "price": 24, "desc": "Coconut milk, chickpeas, spinach, basmati rice, naan (Vegan)."},
+                {"name": "Fish & Chips", "price": 26, "desc": "Beer battered cod, tartar sauce, coleslaw, lemon."}
+            ],
+            "pizza": [
+                {"name": "Margherita", "price": 22, "desc": "Tomato sauce, fresh mozzarella, basil."},
+                {"name": "Pepperoni", "price": 24, "desc": "Tomato sauce, mozzarella, spicy pepperoni."},
+                {"name": "BBQ Chicken", "price": 25, "desc": "BBQ sauce, red onion, cilantro, gouda."},
+                {"name": "Veggie Deluxe", "price": 23, "desc": "Peppers, onions, mushrooms, olives, spinach."}
+            ],
+            "sides": [
+                {"name": "French Fries", "price": 8},
+                {"name": "Sweet Potato Fries", "price": 9},
+                {"name": "Truffle Fries", "price": 12},
+                {"name": "Side Salad", "price": 8},
+                {"name": "Mashed Potatoes", "price": 9},
+                {"name": "Steamed Broccoli", "price": 9}
+            ]
+        },
+        "late_night": {
+            "hours": "10:00 PM - 6:00 AM",
+            "items": [
+                {"name": "Late Night Burger", "price": 28, "desc": "Cheddar, lettuce, tomato, fries."},
+                {"name": "Chicken Tenders", "price": 18, "desc": "Honey mustard, fries."},
+                {"name": "Grilled Cheese", "price": 16, "desc": "Sourdough, cheddar, tomato soup dipper."},
+                {"name": "Caesar Salad", "price": 18, "desc": "Romaine, parmesan, croutons."}
+            ]
+        },
         "desserts": [
-            {"item": "NY Cheesecake", "price": 14, "details": "Raspberry coulis"},
-            {"item": "Chocolate Fondant", "price": 16, "details": "Vanilla bean ice cream"},
-            {"item": "Fresh Fruit Plate", "price": 14, "details": "Seasonal berries and melon"},
-            {"item": "Artisan Cheese Board", "price": 22, "details": "Selection of 3 cheeses, crackers, honey"}
+            {"name": "NY Cheesecake", "price": 14, "desc": "Raspberry coulis, fresh berries."},
+            {"name": "Chocolate Lava Cake", "price": 16, "desc": "Warm center, vanilla bean ice cream."},
+            {"name": "Fresh Fruit Plate", "price": 14, "desc": "Seasonal sliced melon and berries."},
+            {"name": "Sorbet Trio", "price": 12, "desc": "Lemon, Raspberry, Mango."},
+            {"name": "Warm Cookies", "price": 10, "desc": "Three chocolate chip cookies, glass of milk."}
         ],
-        "kids": [
-            {"item": "Chicken Fingers", "price": 14, "details": "With fries"},
-            {"item": "Mac & Cheese", "price": 12, "details": "Creamy cheddar sauce"},
-            {"item": "Mini Cheeseburgers", "price": 16, "details": "Two sliders, fries"}
-        ],
-        "beverages": [
-            {"item": "Soft Drink", "price": 6, "details": "Coke, Diet Coke, Sprite, Ginger Ale"},
-            {"item": "Juice", "price": 8, "details": "Orange, Apple, Cranberry"},
-            {"item": "Still Water (Fiji)", "price": 10, "details": "1L"},
-            {"item": "Sparkling Water (San Pellegrino)", "price": 10, "details": "1L"},
-            {"item": "Coffee", "price": 6, "details": "Regular or Decaf"},
-            {"item": "Tea", "price": 6, "details": "Earl Grey, Mint, Green, Chamomile"},
-            {"item": "Domestic Beer", "price": 9, "details": "Bud Light, Miller Lite"},
-            {"item": "Import Beer", "price": 10, "details": "Stella, Corona, Heineken"},
-            {"item": "Glass of House Wine", "price": 14, "details": "Red or White"},
-            {"item": "Bottle of Champagne", "price": 120, "details": "Veuve Clicquot"}
-        ]
+        "beverages": {
+            "soft_drinks": [
+                {"name": "Coke", "price": 6}, {"name": "Diet Coke", "price": 6}, 
+                {"name": "Sprite", "price": 6}, {"name": "Ginger Ale", "price": 6}
+            ],
+            "water": [
+                {"name": "Fiji (1L)", "price": 10}, {"name": "San Pellegrino (1L)", "price": 10}
+            ],
+            "coffee_tea": [
+                {"name": "Pot of Coffee", "price": 12}, {"name": "Espresso", "price": 6},
+                {"name": "Cappuccino/Latte", "price": 8}, {"name": "Hot Tea Selection", "price": 8}
+            ],
+            "beer": [
+                {"name": "Heineken", "price": 9}, {"name": "Corona", "price": 9},
+                {"name": "Stella Artois", "price": 9}, {"name": "Local IPA", "price": 10}
+            ],
+            "wine_glass": [
+                {"name": "House Cabernet", "price": 14}, {"name": "House Chardonnay", "price": 14},
+                {"name": "Pinot Noir", "price": 16}, {"name": "Sauvignon Blanc", "price": 16}
+            ]
+        }
     },
+    "amenities": [
+        "Extra Towels", "Extra Pillows (Feather/Foam)", "Toothbrush Kit", "Shaving Kit", 
+        "Sewing Kit", "Slippers", "Robes", "Ice Bucket", "Shoe Shine", "Laundry Bag"
+    ],
     "policies": {
-        "pets": "Pet friendly (up to 25lbs) with $100 deposit.",
-        "smoking": "Strictly non-smoking property. $500 fine."
+        "service_charge": "20% service charge and $5 delivery fee added to all orders.",
+        "delivery_time": "Approximately 30-40 minutes.",
+        "alcohol": "ID required upon delivery."
     }
 }
