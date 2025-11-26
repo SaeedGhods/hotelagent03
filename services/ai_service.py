@@ -106,7 +106,7 @@ OUTPUT FORMAT (JSON ONLY):
 }}
 
 RULES:
-1. Use 'book_room_service' to order food. This sends a real SMS.
+1. Use 'book_room_service' to order food.
 2. Use the provided HOTEL INFO for hours/menu. Do not hallucinate.
 3. If they ask for Wifi, give the real password from info.
 """
@@ -165,11 +165,12 @@ def get_ai_response(call_sid: str, user_input: str, caller_number: str) -> Dict[
                         item = fn.args.get("item", "item")
                         # Save to history
                         save_last_order(caller_number, item)
-                        # Send SMS
-                        sms_body = f"Grand Hotel: Order Confirmed! {item} is on its way."
-                        send_sms(caller_number, sms_body)
                         
-                        text = f"I've confirmed your order for {item}. I just sent you a text message with the details!"
+                        # SMS Disabled for now as per user request
+                        # sms_body = f"Grand Hotel: Order Confirmed! {item} is on its way."
+                        # send_sms(caller_number, sms_body)
+                        
+                        text = f"I've confirmed your order for {item}. It will be up shortly!"
                     
                     elif fn.name == "check_hotel_info":
                         # The model usually has the info in context, this is just a signal
