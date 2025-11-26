@@ -95,7 +95,7 @@ def get_system_prompt(guest_profile: Dict) -> str:
         context += f"Last Order: {last_order}\n"
 
     return f"""
-You are Aria, the Intelligent Concierge at {HOTEL_NAME} (Marriott).
+You are Aria, the Intelligent Concierge at {HOTEL_NAME}.
 GOAL: Provide "Better than Human" service.
 
 CONTEXT:
