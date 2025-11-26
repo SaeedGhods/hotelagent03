@@ -58,7 +58,9 @@ async def handle_speech(CallSid: str = Form(...), SpeechResult: str = Form(None)
     
     if audio_file_path:
         # Convert local path to public URL
-        audio_url = f"{HOST_URL}/{audio_file_path}"
+        # Ensure no double slashes
+        clean_host = HOST_URL.rstrip("/")
+        audio_url = f"{clean_host}/{audio_file_path}"
         response.play(audio_url)
     else:
         # Fallback to Twilio TTS if generation failed
