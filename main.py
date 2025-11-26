@@ -30,11 +30,22 @@ async def voice(From: str = Form(...), CallSid: str = Form(...)):
     clear_history(CallSid)
     response = VoiceResponse()
     
-    # Default English Greeting
-    greeting_text = f"Welcome to {HOTEL_NAME}. How can I help you?"
+    # Use Pre-Generated Audio for Instant, High-Quality Greeting
+    # Check if static/welcome.mp3 exists
+    welcome_file = "static/welcome.mp3"
     
-    # Use English Neural Voice by default
-    response.say(greeting_text, voice="en-US-Neural2-F")
+    # We assume the file is generated. If not, we could trigger generation here, 
+    # but that adds latency. 
+    # Ideally, this file is generated at deployment time.
+    
+    if os.path.exists(welcome_file):
+         # Use the public URL
+         clean_host = HOST_URL.rstrip("/")
+         audio_url = f"{clean_host}/{welcome_file}"
+         response.play(audio_url)
+    else:
+         # Fallback if file missing (shouldn't happen if we run prewarm)
+         response.say(f"Welcome to {HOTEL_NAME}. How can I help?", voice="en-US-Neural2-F")
     
     response.gather(input="speech", action="/handle-speech", timeout=3, language="auto")
     response.redirect("/voice")

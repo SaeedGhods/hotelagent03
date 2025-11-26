@@ -3,9 +3,9 @@ import requests
 import uuid
 
 ELEVENLABS_API_KEY = os.getenv("ELEVENLABS_API_KEY")
-# Voice ID: "Rachel" (American, Calm) - customizable
-# See ElevenLabs library for voice IDs
-DEFAULT_VOICE_ID = "21m00Tcm4TlvDq8ikWAM" 
+# Voice ID: "Sarah" (Soft, Pleasant, 5-Star Service)
+# Old: "21m00Tcm4TlvDq8ikWAM" (Rachel)
+DEFAULT_VOICE_ID = "EXAVITQu4vr4xnSDxMaL" 
 
 def generate_audio(text: str, output_filename: str = None) -> str:
     """
@@ -32,10 +32,12 @@ def generate_audio(text: str, output_filename: str = None) -> str:
     
     data = {
         "text": text,
-        "model_id": "eleven_multilingual_v2", # Critical for Farsi support
+        "model_id": "eleven_turbo_v2_5", # Newer model, lower latency, better multilingual
         "voice_settings": {
-            "stability": 0.5,
-            "similarity_boost": 0.5
+            "stability": 0.6,       # Higher stability = less random/emotional, more consistent
+            "similarity_boost": 0.8, # High boost = sticks closer to the original voice tone
+            "style": 0.5,           # Add a bit of expressive style
+            "use_speaker_boost": True
         }
     }
 
